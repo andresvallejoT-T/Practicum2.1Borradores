@@ -19,7 +19,6 @@ Esta guía indica **en qué orden instalar** cada tecnología, **dónde descarga
 | 7 | SQLAlchemy + driver de PostgreSQL | Librería de Python | No (se instala con `pip`) |
 | 8 | FastAPI + Uvicorn | Librería de Python | No (se instala con `pip`) |
 | 9 | Streamlit | Librería de Python | No (se instala con `pip`) |
-| 10 | cron (programador de tareas) | Herramienta del sistema | No (ya viene en Linux y macOS) |
 
 ---
 
