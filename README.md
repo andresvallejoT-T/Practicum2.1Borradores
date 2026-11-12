@@ -1,6 +1,6 @@
 # Guía de instalación – Tecnologías sugeridas
 
-**Tecnologías sugeridas:** Python, Pandas, Requests, PostgreSQL, SQLAlchemy, FastAPI, Streamlit y GitHub.
+**Tecnologías sugeridas:** Python, Pandas, Requests, PostgreSQL, SQLAlchemy, FastAPI, Streamlit, cron y GitHub.
 
 Esta guía indica **en qué orden instalar** cada tecnología, **dónde descargar** los programas que no vienen con el sistema y **qué comandos copiar y pegar** para las librerías de Python.
 
@@ -19,6 +19,8 @@ Esta guía indica **en qué orden instalar** cada tecnología, **dónde descarga
 | 7 | SQLAlchemy + driver de PostgreSQL | Librería de Python | No (se instala con `pip`) |
 | 8 | FastAPI + Uvicorn | Librería de Python | No (se instala con `pip`) |
 | 9 | Streamlit | Librería de Python | No (se instala con `pip`) |
+| 10 | cron (programador de tareas) | Herramienta del sistema | No (ya viene en Linux y macOS) |
+
 ---
 
 ## 2. Programas que se descargan aparte
@@ -103,7 +105,7 @@ Crear la base de datos del proyecto (te pedirá la contraseña de `postgres`):
 psql -U postgres -c "CREATE DATABASE opendata;"
 ```
 
-
+> **Nota:** el proyecto también funciona sin PostgreSQL. Si no se configura, usa SQLite automáticamente (archivo `opendata_etl.db`). PostgreSQL se usa cuando se define la variable `DATABASE_URL` (ver la sección 5).
 
 ---
 
@@ -156,15 +158,13 @@ python -m pip install --upgrade pip
 
 Con el entorno virtual **activado**, copia y pega cada bloque en orden.
 
-### Opción A. Instalar con el archivo `requirements.txt`
+### Opción A. Instalar todo de una vez (recomendada)
 
+Si el proyecto trae el archivo `requirements.txt`:
 
 ```bash
 pip install -r requirements.txt
 ```
->
-> En caso de que no funcione intalar una por una con la opcion B
->
 
 ### Opción B. Instalar una por una
 
@@ -231,8 +231,111 @@ pip freeze > requirements.txt
 
 ---
 
+## 5. Conectar el proyecto con PostgreSQL (opcional)
 
-## 5. Posibles problemas
+Define la variable de entorno `DATABASE_URL` **antes** de ejecutar el proyecto. Cambia `CLAVE` por la contraseña que elegiste al instalar PostgreSQL.
+
+**Windows (PowerShell):**
+
+```powershell
+$env:DATABASE_URL = "postgresql+psycopg://postgres:CLAVE@localhost:5432/opendata"
+```
+
+**Linux / macOS:**
+
+```bash
+export DATABASE_URL="postgresql+psycopg://postgres:CLAVE@localhost:5432/opendata"
+```
+
+Para volver a SQLite, cierra la terminal o elimina la variable.
+
+---
+
+## 6. Ejecutar el proyecto
+
+**Interfaz web (Streamlit):**
+
+```bash
+streamlit run app.py
+```
+
+Abre en: http://localhost:8501
+
+**API REST (FastAPI), en otra terminal con el entorno activado:**
+
+```bash
+uvicorn api:app --reload
+```
+
+Documentación interactiva en: http://localhost:8000/docs
+
+---
+
+## 7. cron (ejecución programada)
+
+**cron** programa tareas automáticas, por ejemplo extraer datos todos los días. **No se descarga:** ya viene instalado en Linux y macOS.
+
+### Linux / macOS
+
+Abrir el editor de tareas:
+
+```bash
+crontab -e
+```
+
+Ejemplo: ejecutar un script todos los días a las 02:00 (ajusta las rutas a las de tu equipo):
+
+```cron
+0 2 * * * /ruta/al/proyecto/.venv/bin/python /ruta/al/proyecto/ejecutar_etl.py >> /ruta/al/proyecto/etl.log 2>&1
+```
+
+Formato: `minuto hora día-del-mes mes día-de-la-semana comando`.
+
+Ver las tareas programadas:
+
+```bash
+crontab -l
+```
+
+> `ejecutar_etl.py` es un nombre de ejemplo: es un script que tú debes crear y que llame al pipeline ETL.
+
+### Windows
+
+Windows no incluye cron. La alternativa equivalente es el **Programador de tareas** (*Task Scheduler*), que ya viene instalado. Ejemplo desde PowerShell para ejecutar un script todos los días a las 02:00 (ajusta las rutas):
+
+```powershell
+schtasks /Create /SC DAILY /ST 02:00 /TN "ETL_OpenData" /TR "C:\ruta\al\proyecto\.venv\Scripts\python.exe C:\ruta\al\proyecto\ejecutar_etl.py"
+```
+
+Opcionalmente, en Windows puedes usar cron dentro de **WSL** (Windows Subsystem for Linux): https://learn.microsoft.com/windows/wsl/install
+
+---
+
+## 8. Subir el proyecto a GitHub
+
+Con Git instalado y tu cuenta creada, desde la carpeta del proyecto:
+
+```bash
+git init
+git add .
+git commit -m "Primer commit: proyecto ETL de datos abiertos"
+git branch -M main
+git remote add origin https://github.com/USUARIO/NOMBRE-DEL-REPOSITORIO.git
+git push -u origin main
+```
+
+Antes, crea el repositorio vacío en https://github.com/new.
+
+> **Recomendación:** no subas el entorno virtual ni la base local. Verifica que el archivo `.gitignore` incluya:
+> ```
+> .venv/
+> __pycache__/
+> *.db
+> ```
+
+---
+
+## 9. Solución de problemas frecuentes
 
 | Problema | Solución |
 |---|---|
@@ -244,3 +347,15 @@ pip freeze > requirements.txt
 | Error de autenticación en PostgreSQL | Revisa la contraseña en `DATABASE_URL` |
 | Puerto 8501 ocupado | `streamlit run app.py --server.port 8502` |
 | PowerShell no deja activar `.venv` | `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` |
+
+---
+
+## 10. Lista de verificación final
+
+- [ ] Git instalado (`git --version`) y cuenta de GitHub creada
+- [ ] Python 3.12 instalado (`python --version`)
+- [ ] PostgreSQL instalado y base `opendata` creada (opcional si se usa SQLite)
+- [ ] Entorno virtual creado y activado
+- [ ] Librerías instaladas (`pip list`)
+- [ ] Proyecto ejecutándose con `streamlit run app.py`
+- [ ] Repositorio subido a GitHub
