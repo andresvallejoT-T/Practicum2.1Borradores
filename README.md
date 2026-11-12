@@ -1,6 +1,6 @@
 # Guía de instalación – Tecnologías sugeridas
 
-**Tecnologías sugeridas:** Python, Pandas, Requests, PostgreSQL, SQLAlchemy, FastAPI, Streamlit, cron y GitHub.
+**Tecnologías sugeridas:** Python, Pandas, Requests, PostgreSQL, SQLAlchemy, FastAPI, Streamlit y GitHub.
 
 Esta guía indica **en qué orden instalar** cada tecnología, **dónde descargar** los programas que no vienen con el sistema y **qué comandos copiar y pegar** para las librerías de Python.
 
@@ -19,7 +19,6 @@ Esta guía indica **en qué orden instalar** cada tecnología, **dónde descarga
 | 7 | SQLAlchemy + driver de PostgreSQL | Librería de Python | No (se instala con `pip`) |
 | 8 | FastAPI + Uvicorn | Librería de Python | No (se instala con `pip`) |
 | 9 | Streamlit | Librería de Python | No (se instala con `pip`) |
-
 ---
 
 ## 2. Programas que se descargan aparte
